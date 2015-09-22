@@ -6,7 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
 
-namespace DentsuAegis.Neon.Proxy.DAL
+namespace Adil.DAL
 {
     /// <summary>
     /// The SQLClient class is intended to encapsulate high performance, scalable best practices for
