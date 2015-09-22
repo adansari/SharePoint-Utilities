@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using DentsuAegis.Neon.Proxy.Common.Security;
-using DentsuAegis.Neon.Proxy.Common;
 using System.Configuration;
 
-namespace DentsuAegis.Neon.Proxy.DAL
+namespace Adil.DAL
 {
     [DataContract]
     public sealed class SharePointLoginInfo
