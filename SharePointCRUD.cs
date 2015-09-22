@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.SharePoint;
 using Microsoft.SharePoint.Utilities;
 
-namespace PublicisGroupe.EmailSignature.Common.Entities
+namespace Adil.Common.Entities
 {
     public class BackOffice : SPRepository, IDisposable
     {
