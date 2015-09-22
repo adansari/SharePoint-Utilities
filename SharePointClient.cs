@@ -1,4 +1,3 @@
-﻿using DentsuAegis.Neon.Proxy.Common;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Search.Query;
 using Microsoft.SharePoint.Client.UserProfiles;
@@ -9,7 +8,7 @@ using System.Configuration;
 using System.Linq.Expressions;
 using System.Net;
 
-namespace DentsuAegis.Neon.Proxy.DAL
+namespace Adil.DAL
 {
     /// <summary>
     /// The SharePointClient class is intended to encapsulate high performance, scalable best practices for
