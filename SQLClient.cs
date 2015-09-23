@@ -32,19 +32,17 @@ namespace Adil.DAL
 
         #region Public Method
 
-        public int ExecuteNonQuery(CommandType commandType, string commandText, SqlTransaction transaction, params SqlParameter[] commandParameters)
+        public int ExecuteNonQuery(CommandType commandType, string commandText, SqlTransaction transaction, List<SqlParameter> commandParameters)
         {
             try
             {
-                SqlCommand cmd = CreateCommand(commandType, commandText, transaction, commandParameters);
+                int rowsAffected = -1;
 
-                if (this.OpenConnection())
+                using (SqlCommand cmd = CreateCommand(commandType, commandText, transaction, commandParameters))
                 {
-                    return cmd.ExecuteNonQuery();
-                }
-                else
-                {
-                    return -1;
+                    if (this.OpenConnection())rowsAffected = cmd.ExecuteNonQuery();
+                    cmd.Parameters.Clear();
+                    return rowsAffected;
                 }
             }
             finally
@@ -53,19 +51,17 @@ namespace Adil.DAL
             }
         }
 
-        public int ExecuteNonQuery(CommandType commandType, string commandText, params SqlParameter[] commandParameters)
+        public int ExecuteNonQuery(CommandType commandType, string commandText, List<SqlParameter> commandParameters)
         {
             try
             {
-                SqlCommand cmd = CreateCommand(commandType, commandText, null, commandParameters);
+                int rowsAffected = -1;
 
-                if (this.OpenConnection())
+                using (SqlCommand cmd = CreateCommand(commandType, commandText, null, commandParameters))
                 {
-                    return cmd.ExecuteNonQuery();
-                }
-                else
-                {
-                    return -1;
+                    if (this.OpenConnection()) rowsAffected = cmd.ExecuteNonQuery();
+                    cmd.Parameters.Clear();
+                    return rowsAffected;
                 }
             }
             finally
@@ -74,41 +70,17 @@ namespace Adil.DAL
             }
         }
 
-        public int ExecuteNonQuery(string spName, SqlTransaction transaction, params SqlParameter[] commandParameters)
+        public int ExecuteNonQuery(string spName, SqlTransaction transaction, List<SqlParameter> commandParameters)
         {
             try
             {
-                SqlCommand cmd = CreateCommand(CommandType.StoredProcedure, spName, transaction, commandParameters);
+                int rowsAffected = -1;
 
-                if (this.OpenConnection())
+                using (SqlCommand cmd = CreateCommand(CommandType.StoredProcedure, spName, transaction, commandParameters))
                 {
-                    return cmd.ExecuteNonQuery();
-                }
-                else
-                {
-                    return -1;
-                }
-
-            }
-            finally
-            {
-                this.CloseConnection();
-            }
-        }
-
-        public int ExecuteNonQuery(string spName, params SqlParameter[] commandParameters)
-        {
-            try
-            {
-                SqlCommand cmd = CreateCommand(CommandType.StoredProcedure, spName, null, commandParameters);
-
-                if (this.OpenConnection())
-                {
-                    return cmd.ExecuteNonQuery();
-                }
-                else
-                {
-                    return -1;
+                    if (this.OpenConnection()) rowsAffected = cmd.ExecuteNonQuery();
+                    cmd.Parameters.Clear();
+                    return rowsAffected;
                 }
             }
             finally
@@ -117,44 +89,64 @@ namespace Adil.DAL
             }
         }
 
-        public DataSet ExecuteDataset(CommandType commandType, string commandText, params SqlParameter[] commandParameters)
-        {
-            SqlCommand cmd = CreateCommand(commandType, commandText, null, commandParameters);
-
-            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-            {
-                DataSet ds = new DataSet();
-                da.Fill(ds);
-                return ds;
-            }
-        }
-
-        public DataSet ExecuteDataset(string spName, params SqlParameter[] commandParameters)
-        {
-            SqlCommand cmd = CreateCommand(CommandType.StoredProcedure, spName, null, commandParameters);
-
-            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-            {
-                DataSet ds = new DataSet();
-                da.Fill(ds);
-                return ds;
-            }
-        }
-
-        public object ExecuteScalar(CommandType commandType, string commandText, params SqlParameter[] commandParameters)
+        public int ExecuteNonQuery(string spName, List<SqlParameter> commandParameters)
         {
             try
             {
+                int rowsAffected = -1;
 
-                SqlCommand cmd = CreateCommand(commandType, commandText, null, commandParameters);
-
-                if (this.OpenConnection())
+                using (SqlCommand cmd = CreateCommand(CommandType.StoredProcedure, spName, null, commandParameters))
                 {
-                    return cmd.ExecuteScalar();
+                    if (this.OpenConnection()) rowsAffected = cmd.ExecuteNonQuery();
+                    cmd.Parameters.Clear();
+                    return rowsAffected;
                 }
-                else
+            }
+            finally
+            {
+                this.CloseConnection();
+            }
+        }
+
+        public DataTable ExecuteDataTable(CommandType commandType, string commandText, List<SqlParameter> commandParameters)
+        {
+            using (SqlCommand cmd = CreateCommand(commandType, commandText, null, commandParameters))
+            {
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                 {
-                    return null;
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    cmd.Parameters.Clear();
+                    return dt;
+                }
+            }
+        }
+
+        public DataTable ExecuteDataTable(string spName, List<SqlParameter> commandParameters)
+        {
+            using (SqlCommand cmd = CreateCommand(CommandType.StoredProcedure, spName, null, commandParameters))
+            {
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                {
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    cmd.Parameters.Clear();
+                    return dt;
+                }
+            }
+        }
+
+        public object ExecuteScalar(CommandType commandType, string commandText, List<SqlParameter> commandParameters)
+        {
+            try
+            {
+                object result = null;
+
+                using (SqlCommand cmd = CreateCommand(commandType, commandText, null, commandParameters))
+                {
+                    if (this.OpenConnection()) result = cmd.ExecuteScalar();
+                    cmd.Parameters.Clear();
+                    return result;
                 }
 
             }
@@ -164,19 +156,17 @@ namespace Adil.DAL
             }
         }
 
-        public object ExecuteScalar(string spName, params SqlParameter[] commandParameters)
+        public object ExecuteScalar(string spName, List<SqlParameter> commandParameters)
         {
             try
             {
-                SqlCommand cmd = CreateCommand(CommandType.StoredProcedure, spName, null, commandParameters);
+                object result = null;
 
-                if (this.OpenConnection())
+                using (SqlCommand cmd = CreateCommand(CommandType.StoredProcedure, spName, null, commandParameters))
                 {
-                    return cmd.ExecuteScalar();
-                }
-                else
-                {
-                    return null;
+                    if (this.OpenConnection()) result = cmd.ExecuteScalar();
+                    cmd.Parameters.Clear();
+                    return result;
                 }
             }
             finally
@@ -189,11 +179,12 @@ namespace Adil.DAL
 
         #region Private Method
 
-        private SqlCommand CreateCommand(CommandType commandType, string commandText, SqlTransaction transaction, params SqlParameter[] commandParameters)
+        private SqlCommand CreateCommand(CommandType commandType, string commandText, SqlTransaction transaction, List<SqlParameter> commandParameters)
         {
             if (commandText == null || commandText.Length == 0) throw new ArgumentNullException("Sql command text");
 
             SqlCommand cmd = new SqlCommand(commandText, this._sqlConn);
+            cmd.CommandType = commandType;
 
             if (transaction != null)
             {
@@ -209,7 +200,7 @@ namespace Adil.DAL
             return cmd;
         }
 
-        private void AttachParameters(SqlCommand command, SqlParameter[] commandParameters)
+        private void AttachParameters(SqlCommand command, List<SqlParameter> commandParameters)
         {
             if (command == null) throw new ArgumentNullException("SqlCommand reference");
             if (commandParameters != null)
@@ -243,7 +234,7 @@ namespace Adil.DAL
             }
             catch (Exception ex)
             {
-                //TODO: Need to log error 
+                LogManager.Get().LogError("SQLClient - OpenConnection", ex); 
                 return false;
             }
         }
@@ -256,7 +247,7 @@ namespace Adil.DAL
             }
             catch (Exception ex)
             {
-                //TODO: Need to log error 
+                LogManager.Get().LogError("SQLClient - CloseConnection", ex); 
             }
         }
 
