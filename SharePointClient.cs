@@ -39,7 +39,7 @@ namespace Adil.DAL
             this._ctx = new ClientContext(this._spLoginInfo.SiteURL);
             if (!string.IsNullOrEmpty(this._spLoginInfo.UserName))
             {
-                this._ctx.Credentials = new NetworkCredential(this._spLoginInfo.DecryptedUserName, this._spLoginInfo.DecryptedPassword, this._spLoginInfo.Domain);
+                this._ctx.Credentials = new NetworkCredential(this._spLoginInfo.DecryptedUserName, this._spLoginInfo.DecryptedPassword, this._spLoginInfo.DecryptedDomain);
             }
         }
 
@@ -72,24 +72,24 @@ namespace Adil.DAL
 
         #region Public Method
 
-        public User GetUserInfo(out string picURL, out string myLocation, out string myBrand)
+        public User GetUserInfo(out string picURL, out string myLocation, out string myBrand, out string myDN)
         {
-            picURL = string.Empty;
             myLocation = ConfigurationManager.AppSettings[Constant.Configuration.NeonDefaultRegion];
             myBrand = ConfigurationManager.AppSettings[Constant.Configuration.NeonDefaultBrand];
 
             User currUser = this._ctx.Web.CurrentUser;
-            this._ctx.Load(currUser, u => u.UserId, u => u.Email, u => u.Title);
+            this._ctx.Load(currUser, u => u.UserId, u => u.Email, u => u.Title, u=> u.LoginName);
 
             PeopleManager peopleManager = new PeopleManager(this._ctx);
             ClientResult<string> spLocation = peopleManager.GetUserProfilePropertyFor(this._spLoginInfo.UserLogin, Constant.SPUserLocationPropertyName);
             ClientResult<string> spPictureUrl = peopleManager.GetUserProfilePropertyFor(this._spLoginInfo.UserLogin, Constant.SPUserPictureURLPropertyName);
-            ClientResult<string> spUserADPath = peopleManager.GetUserProfilePropertyFor(this._spLoginInfo.UserLogin, Constant.SPUserDistinguishedNamePropertyName);
+            ClientResult<string> spUserDN = peopleManager.GetUserProfilePropertyFor(this._spLoginInfo.UserLogin, Constant.SPUserDistinguishedNamePropertyName);
             this._ctx.ExecuteQuery();
 
             picURL = spPictureUrl.Value;
             myLocation = string.IsNullOrEmpty(spLocation.Value) ? myLocation : spLocation.Value;
-            //myADPath = spUserADPath.Value;
+            myDN = spUserDN.Value;
+
             return currUser;
         }
 
@@ -289,7 +289,4 @@ namespace Adil.DAL
 
         #endregion
     }
-
-   
-
 }
