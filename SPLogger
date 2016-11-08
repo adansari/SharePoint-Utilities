@@ -1,0 +1,54 @@
+ public class MyLogger : SPDiagnosticsServiceBase
+    {
+        public static string DiagnosticAreaName = "SolutionName";
+        private static GITLogger _Current;
+        public static GITLogger Current
+        {
+            get
+            {
+                if (_Current == null)
+                {
+                    _Current = new GITLogger();
+                }
+
+                return _Current;
+            }
+        }
+
+        public GITLogger() : base("SolutionName Logging Service", SPFarm.Local)
+        {
+
+        }
+
+        public enum Category
+        {
+            Unexpected,
+            High,
+            Medium,
+            Information
+        }
+
+
+
+        protected override IEnumerable<SPDiagnosticsArea> ProvideAreas()
+        {
+            List<SPDiagnosticsArea> areas = new List<SPDiagnosticsArea>
+        {
+            new SPDiagnosticsArea(DiagnosticAreaName, new List<SPDiagnosticsCategory>
+            {
+                new SPDiagnosticsCategory("Unexpected", TraceSeverity.Unexpected, EventSeverity.Error),
+                new SPDiagnosticsCategory("High", TraceSeverity.High, EventSeverity.Warning),
+                new SPDiagnosticsCategory("Medium", TraceSeverity.Medium, EventSeverity.Information),
+                new SPDiagnosticsCategory("Information", TraceSeverity.Verbose, EventSeverity.Information)
+            })
+        };
+
+            return areas;
+        }
+
+        public static void WriteLog(Category categoryName, string source, string errorMessage)
+        {
+            SPDiagnosticsCategory category = GITLogger.Current.Areas[DiagnosticAreaName].Categories[categoryName.ToString()];
+            GITLogger.Current.WriteTrace(0, category, category.TraceSeverity, string.Concat(source, ": ", errorMessage));
+        }
+    }
